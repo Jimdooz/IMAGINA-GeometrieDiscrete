@@ -20,38 +20,33 @@ ctx.canvas.height = ctx.canvas.offsetHeight;
 let min = ctx.canvas.width > ctx.canvas.height ? ctx.canvas.height : ctx.canvas.width;
 
 let pointSelected = false;
-let points = randomizePoints(4, new Vertex(ctx.canvas.width / 2, ctx.canvas.height / 2, 0), min / 2.5);
-let m;
-m = new Mesh();
-m.addVertex(points[0]);
-m.addVertex(points[1]);
-m.addVertex(points[2]);
-m.addVertex(points[3]);
+// let points = randomizePoints(4, centre, min / 2.5);
+
+let center = new Vertex(ctx.canvas.width / 2, ctx.canvas.height / 2, 0);
+let v0 = new Vertex(-200, 0, 0).add(center);
+let v1 = new Vertex(200, 0, 0).add(center);
+let v2 = new Vertex(50, 100, 0).add(center);
+let v3 = new Vertex(0, -200, 0).add(center);
+let m = new Mesh();
+m.addVertex(v0);
+m.addVertex(v1);
+m.addVertex(v2);
+m.addVertex(v3);
 m.addFace(0,1,2);
 m.addFace(1,3,2);
 m.addFace(1,0,3);
 m.addFace(3,0,2);
 
+let points = [v0, v1, v2, v3];
 
 function draw(Time) {
   ctx.canvas.width = ctx.canvas.offsetWidth;
   ctx.canvas.height = ctx.canvas.offsetHeight;
-  for(let i = 0; i < points.length; i++){
-    points[i].draw(ctx);
-  }
+  // for(let i = 0; i < points.length; i++){
+  //   points[i].draw(ctx);
+  // }
 
-  // canvas_arrow(ctx, points[0].x, points[0].y, points[1].x, points[1].y);
-  // canvas_arrow(ctx, points[0].x, points[0].y, points[2].x, points[2].y);
-  // ctx.stroke();
-  //
-  // let pi_pj = createVector(points[0], points[1]);
-  // let pi_pk = createVector(points[0], points[2]);
-  // let angleA = angleVector(pi_pk, pi_pj);
-  // console.log(angleA);
-
-  // m = Triangulation(points, ctx);
   m.draw(ctx);
-  // drawDelanoi(m, ctx);
 
   ctx.font = '14px sans-serif';
   ctx.textAlign = 'left';
