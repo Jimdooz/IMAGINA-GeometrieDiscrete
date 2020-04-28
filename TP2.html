@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+    <link rel="stylesheet" href="css/cartonboite.css">
+    <title>TP2 - Enveloppe convexe et triangulation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.1/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </head>
+  <body class="-flexCStart -align-ifill -align-sfill ">
+    <section class="-flexRBetween -align-ifill flex1 -flexWrap overflow-v">
+      <article class="-flexCStart -align-ifill back-clear -shadow -f-mult8 overflow-v" style="max-height: 100%;">
+        <div class="padding-very-long -flexCStart -align-ifill">
+          <div class="-flexRBetween">
+            <h1 class="font-h3 -boldest">Master Imagina</h1>
+            <div class="-flexCStart">
+              <img src="images/moon.svg" alt="night" class="-size-min nightImg -dark-logo pointer" onclick="document.body.classList.toggle('NIGHT')">
+            </div>
+          </div>
+          <h3 class="font-h5 -light">TP2 - Enveloppe convexe et triangulation <span class="badge -roundest back-1">Géométrie Discrète</span></h3>
+          <p>Romain Saclier</p>
+          <div class="-flexCStart -align-ifill -margT margin-very-long">
+            <!-- EXERCICE 1 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">1</span> Définissez une structure Point pour stocker un point sous forme de ses coordonnées.</p>
+            <p class="-margV pointer" onclick="document.getElementById('POINT_STRUCTURE').classList.toggle('hide-display')">Structure Point (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="POINT_STRUCTURE"><code class="javascript">/**
+ * Pour la structure point on considérera que c'est un vertex
+ * auquel on a plaqué sa position z sur le plan 2D
+ * @extends Vertex
+ */
+class Point extends Vertex {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.z = 0;
+  }
+}</code></pre>
+            <!-- EXERCICE 2 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">2</span> Écrire une fonction randomizedPoints qui génère un ensemble de n points du plan uniformément dans un disque centré en le centre de la zone d’affichage.</p>
+            <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="generatePoints()">Générer des points</button>
+            <p class="-margV pointer" onclick="document.getElementById('RANDOMIZE_POINTS').classList.toggle('hide-display')">Fonction randomizedPoints (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="RANDOMIZE_POINTS"><code class="javascript">/**
+* Génère n points dans un cerle de rayon défini ayant pour centre un point
+*/
+function randomizePoints(n, center, rayon) {
+    let points = [];
+    for (let i = 0; i < n; ++i) {
+        let angle = Math.random()*Math.PI*2;
+        let randR = rand(0, rayon);
+        let x = Math.cos(angle) * randR;
+        let y = Math.sin(angle) * randR;
+        points[i] = new Point(Math.round(x + center.x), Math.round(y + center.y));
+    }
+    return points;
+}</code></pre>
+            <!-- EXERCICE 3 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">3</span> Écrire une fonction concave qui prend en entrée trois points (r, s, t) du plan et renvoie True si t est strictement à droite de (rs) orientée de r à s et False sinon.</p>
+            <p class="-margV pointer" onclick="document.getElementById('CONCAVE').classList.toggle('hide-display')">Fonction Concave (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="CONCAVE"><code class="javascript">function orientation(r, s, t) {
+    let val = (s.y - r.y) * (t.x - s.x) - (s.x - r.x) * (t.y - s.y);
+    return val == 0 ? 0 : val > 0 ? 1 : 2;
+}
+
+function concave (r, s, t){
+    return orientation(r,s,t)!=2;
+}</code></pre>
+            <!-- EXERCICE 4 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">4</span> Implémentez l’algorithme de Graham.</p>
+            <p class="-margV pointer" onclick="document.getElementById('GRAHAM').classList.toggle('hide-display')">Fonction Graham (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="GRAHAM"><code class="javascript">function Graham(points) {
+    //On récupère le point pivot
+    let min = 0;
+    for (let i = 1; i < points.length; i++) {
+        if ((points[i].y < points[min].y) || (points[min].y ==points[i].y && points[i].x < points[min].x))
+            min = i;
+    }
+    // On place le point pivot à la première position
+    let temp = points[0];
+    points[0] = points[min];
+    points[min] = temp;
+    // On place le pivot en global
+    pivot = points[0];
+
+    // On tri par ordre d'orientation croissant
+    let enveloppe = [];
+    points = [...points].sort(compare);
+
+    // On commence l'algorithme
+    enveloppe.push(points[0]);
+    enveloppe.push(points[1]);
+    for (let i = 2; i < points.length; ++i) {
+        while (enveloppe.length >= 2 && concave(enveloppe[enveloppe.length - 2], enveloppe[enveloppe.length - 1], points[i])) {
+            enveloppe.pop();
+        }
+        enveloppe.push(points[i]);
+    }
+    return enveloppe;
+}</code></pre>
+            <!-- EXERCICE 5 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">5</span> Générez un ensemble de points aléatoirement à l’aide de la fonction randomizedPoints, et calculez l’enveloppe convexe de ces points.</p>
+            <p class="-margV pointer" onclick="document.getElementById('GENERATION_GRAHAM').classList.toggle('hide-display')">Fonction de génération (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="GENERATION_GRAHAM"><code class="javascript">// Permet de générer des points aléatoirement et calculer l'enveloppe convexe
+// center représente le point au centre de la scène , min représente le minimum entre la hauteur et la largeur de la scène
+let points = randomizePoints(50, center, min / 2.5);
+let g = Graham(points);</code></pre>
+            <!-- EXERCICE 6 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">6</span> Implémentez une sortie visible de l’algorithme de Graham.</p>
+            <p class="-margV">Il suffit de récupérer les points donnés par la fonction de l'enveloppe convexe et de les reliers entre eux</p>
+            <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startGraham()">Visualiser Graham</button>
+            <!-- EXERCICE 7 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">7</span> Implémentez une fonction de tri lexicographique d’un ensemble de n points.</p>
+            <p class="-margV pointer" onclick="document.getElementById('TRI_LEXICO').classList.toggle('hide-display')">Fonction Tri lexicographique (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="TRI_LEXICO"><code class="javascript">function lexicographiqueSort(points){
+  return [...points].sort((a, b) => {
+    if(a.x == b.x){
+        return a.y > b.y? 1: -1;
+    }
+    return a.x > b.x? 1: -1;
+  });
+}</code></pre>
+            <!-- EXERCICE 8 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">8</span> Définissez une structure Triangle et un moyen de stocker un ensemble de Triangle.</p>
+            <p>Lors du précédent TP nous avons développé une structure de triangle basé sur le Half Edge, nous l'utiliserons pour la suite.</p>
+            <!-- EXERCICE 9 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">9</span> Les points étant supposé triés, une triangulation Ti ayant été déjà calculé, implémentez une fonction permettant de tester si une arête de Ti est visible d’un point pj , j > i.</p>
+            <p class="-margV pointer" onclick="document.getElementById('TEST_VISIBLE').classList.toggle('hide-display')">Voir la Fonction (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="TEST_VISIBLE"><code class="javascript">//Permet de créer le vecteur allant de A à B
+function createVector(A, B){
+    return new Vertex(B.x - A.x, B.y - A.y, B.z - A.z);
+}
+
+//Fonction de test de signe inverse
+function oppositeSigns(x, y) {
+  return (x < 0)? (y >= 0): (y < 0);
+}
+
+//Permet d'obtenir le déterminants de deux vecteurs
+function determinant(u,v) {
+    return u.x * v.y - v.x * u.y;
+}
+
+// On cherche à savoir si le point pk est visible du point pi en sachant que O appartient à l'enveloppe convexe et que pj est un point déjà visible du point pi
+// On recherche donc si les déterminants sont opposé
+// (pi, pj) (pi, pk) & (O, pj) (O, pk)
+function pointVisible(pi, O, pk, pj){
+    let pi_pj = createVector(pi, pj);
+    let pi_pk = createVector(pi, pk);
+    let determinantA = determinant(pi_pk, pi_pj);
+
+    let O_pj = createVector(O, pj);
+    let O_pk = createVector(O, pk);
+    let determinantB = determinant(O_pk, O_pj);
+
+    //Déterminants opposés alors vrai
+    return oppositeSigns(determinantA, determinantB);
+}</code></pre>
+            <!-- EXERCICE 10 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">10</span> Implémentez l’algorithme incrémental de triangulation.</p>
+            <p class="-margV pointer" onclick="document.getElementById('TRIANGULATION').classList.toggle('hide-display')">Algorithme incrémental Triangulation (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="TRIANGULATION"><code class="javascript">/**
+ * Permet d'obtenir le HEdge n'ayant pas de face pointant à l'opposé de v
+ * @param  {Mesh} m le maillage
+ * @param  {Vertex} v le vertex
+ */
+function incidentEdgeNoFace(m, v){
+  let incr = m.incidentIteratorVertex(v);
+  let incrValue = incr.next();
+  while(!incrValue.done){
+    if (m.getHEdge(incrValue.value).face == undefined && m.getHEdge(incrValue.value).vhead != v) {
+      return incrValue.value;
+    }
+    incrValue = incr.next();
+  }
+}
+
+/**
+ * Triangulation
+ * @param       {Points} givenPoints les points permettant la construction de la triangulation
+ * @constructor
+ */
+function Triangulation(givenPoints){
+  let m = new Mesh();
+
+  //Sort points
+  let points = lexicographiqueSort(givenPoints);
+
+  //On ajoute les points à l'enveloppe convexe
+  let iv0 = m.addVertex(points[0]);
+	let iv1 = m.addVertex(points[1]);
+	let iv2 = m.addVertex(points[2]);
+
+  //Ajout de la première face
+  m.addFace(iv0, iv1, iv2);
+
+  let ilastVertex = iv2;
+  // Calcul du point O qui sera un point appartenant à l'enveloppe convexe
+  let nbPoints = 3;
+  let totalPoints = points[0].add(points[1]).add(points[2]);
+  let O = totalPoints.devide(nbPoints);
+
+  //Pour chaques points suivant on va obtenir les points visible depuis celui-ci en parcourant le côté avant et arrière
+  for(let i=3;i < points.length;++i){
+    // Dernier point vu
+    let lastVertex = m.getVertex(ilastVertex);
+    let edgeEnveloppe = incidentEdgeNoFace(m, ilastVertex); //L'Edge qui permet de débuter le chemin de l'enveloppe convexe
+
+    let edgeCalcul = edgeEnveloppe;
+    let horizonF = ilastVertex; //La position du vertex sur l'horizon en exerçant un parcours vers l'avant
+    let horizonB = ilastVertex; //La position du vertex sur l'horizon en exerçant un parcours vers l'arrière
+    let HEdgeHorizonF = edgeEnveloppe;
+    let HEdgeHorizonB = edgeEnveloppe;
+    let foundF = false; //Condition de sortie si on a trouvé l'horizon du parcours avant
+    let foundB = false; //Condition de sortie si on a trouvé l'horizon du parcours arrière
+    let max = 500; //Sécurité pour éviter une boucle infinie
+
+    // Côté forward
+    while(!foundF){
+        if(--max < 0) break;
+        let nextEdge = m.getHEdge(edgeCalcul); //On récupère l'edge pour calculer la tête
+        if(!nextEdge){ return m; } //Parfois la génération de points créé des points au même endroit
+        let headId = nextEdge.vhead; //On récupère l'id de la tête
+        let head = m.getVertex(headId); //On obtient les information sur le point
+        if(pointVisible(points[i], O, head, lastVertex)){
+          HEdgeHorizonF = edgeCalcul;
+          edgeCalcul = nextEdge.next;
+          lastVertex = head;
+          horizonF = headId;
+        }else{
+          foundF = true;
+        }
+        if(horizonF == 0) foundF = true; //Si on a trouvé le premier point alors on s'arrête on évite de boucle la recherche dans le cas de 3 points visible
+    }
+
+    // Côté Backward
+    edgeCalcul = m.getHEdge(edgeEnveloppe).prev;
+    lastVertex = m.getVertex(ilastVertex); //On réinitialise le dernier point vu
+    while(!foundB){
+        if(--max < 0) break;
+        let nextEdge = m.getHEdge(edgeCalcul); //On récupère l'edge pour calculer la tête de son opposé
+        let headId = m.getHEdge(nextEdge.opposite).vhead; //On récupère l'id de la tête
+        let head = m.getVertex(headId); //On obtient les information sur le point
+        if(pointVisible(points[i], O, head, lastVertex)){
+            HEdgeHorizonB = edgeCalcul;
+            edgeCalcul = nextEdge.prev;
+            lastVertex = head;
+            horizonB = headId;
+        }else{
+            foundB = true;
+        }
+        if(headId == horizonF || horizonB == 0) foundB = true; //Si le prochain point appartient déjà à l'autre horizon alors on s'arrête
+    }
+
+    // On commence d'une extrémité
+    let ivNext = m.addVertex(points[i]);
+    // Création du premier triangle
+    let horizonEdge = m.getHEdge(HEdgeHorizonB); //On récupère l'opposé d'un point de l'horizon
+    let constructorParcours = true;
+    let toBuild = [];
+    // On récupères les différents points de l'horizon qui servirons à construire les différents triangles
+    while(constructorParcours){
+        if(--max < 0) break;
+        let nextHead = horizonEdge.vhead;
+        toBuild.push(nextHead);
+        toBuild.push(ivNext);
+        toBuild.push(horizonB);
+        if(nextHead == horizonF) constructorParcours = false;
+        horizonB = nextHead;
+        horizonEdge = m.getHEdge(horizonEdge.next);
+    }
+
+    // On construit les différents triangles
+    for(let i = 0; i < toBuild.length; i+=3){
+      m.addFace(toBuild[i], toBuild[i+1], toBuild[i+2]);
+    }
+    // On défini la nouvelle dernière vertex vue
+    ilastVertex = ivNext;
+
+    // On update la position de O
+    totalPoints = totalPoints.add(points[i]);
+    nbPoints++;
+    O = totalPoints.devide(nbPoints);
+  }
+
+  return m;
+}</code></pre>
+            <!-- EXERCICE 11 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">11</span> Générez un ensemble de points aléatoirement à l’aide de la fonction randomizedPoints, triangulez ces points.</p>
+            <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startTriangulation()">Visualiser La Triangulation</button>
+            <p class="-margV pointer" onclick="document.getElementById('CODE_GENRERATE_TRIANGULATION').classList.toggle('hide-display')">Algorithme incrémental Triangulation (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="CODE_GENRERATE_TRIANGULATION"><code class="javascript">//Génération de la triangulation
+// center représente le point au centre de la scène , min représente le minimum entre la hauteur et la largeur de la scène
+let points = randomizePoints(50, center, min / 2.5);
+let m = Triangulation(points, ctx);</code></pre>
+          </div>
+        </div>
+      </article>
+      <article class="-flexCStart -align-ifill -f-mult8 overflow-v" style="height: 100vh;">
+        <canvas id="SCENE" class="flex1"></canvas>
+      </article>
+    </section>
+  </body>
+  <script src="scripts/geometry.js" charset="utf-8"></script>
+  <script src="scripts/loop.js" charset="utf-8"></script>
+  <script src="scripts/triangulation.js" charset="utf-8"></script>
+  <script src="scripts/graham.js" charset="utf-8"></script>
+  <script src="scripts/TPS/TP2.js" charset="utf-8"></script>
+</html>

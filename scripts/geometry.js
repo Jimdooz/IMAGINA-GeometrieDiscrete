@@ -270,13 +270,13 @@ class Mesh {
     this.getFace(this.getHEdge(o_self).face).edges = [o_prev, o_self, o_oppNext];
   }
 
-  recursiveCorrection(iHedge){
-    if(!this.legalEdge(iHedge)){
+  recursiveCorrection(iHedge, maxRecursion = 20){
+    if(!this.legalEdge(iHedge) && maxRecursion > 0){
       this.flipHEdge(iHedge);
-      this.recursiveCorrection(this.getHEdge(iHedge).next);
-      this.recursiveCorrection(this.getHEdge(iHedge).prev);
-      this.recursiveCorrection(this.getHEdge(this.getHEdge(iHedge).opposite).next);
-      this.recursiveCorrection(this.getHEdge(this.getHEdge(iHedge).opposite).prev);
+      this.recursiveCorrection(this.getHEdge(iHedge).next, --maxRecursion);
+      this.recursiveCorrection(this.getHEdge(iHedge).prev, --maxRecursion);
+      this.recursiveCorrection(this.getHEdge(this.getHEdge(iHedge).opposite).next, --maxRecursion);
+      this.recursiveCorrection(this.getHEdge(this.getHEdge(iHedge).opposite).prev, --maxRecursion);
     }
   }
 }
