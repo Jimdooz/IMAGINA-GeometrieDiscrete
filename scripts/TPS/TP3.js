@@ -21,7 +21,7 @@ let min = ctx.canvas.width > ctx.canvas.height ? ctx.canvas.height : ctx.canvas.
 
 let pointSelected = false;
 let center = new Vertex(ctx.canvas.width / 2, ctx.canvas.height / 2, 0);
-let points = randomizePoints(4000, center, min / 2.5);
+let points = randomizePoints(20, center, min / 2.5);
 
 let VISUALISATION = 0;
 let nbGeneration = 0;
@@ -31,19 +31,56 @@ function draw(Time) {
   ctx.canvas.height = ctx.canvas.offsetHeight;
 
   if(VISUALISATION == 1){
-    nbGeneration++;
-    if(nbGeneration < 500) points.push(...randomizePoints(5, center, min / 2.5));
+    let m = TriangulationDelauney(points, ctx);
+    m.draw(ctx);
   }
   if(VISUALISATION == 2){
-    drawGraham(ctx, points)
+    for(let i = 0; i < points.length; i += 3){
+      drawCircleCirconscrit(points[i], points[i + 1], points[i + 2], true);
+    }
   }
   if(VISUALISATION == 3){
-    m = Triangulation(points, ctx);
-    m.draw(ctx);
+    let m = TriangulationDelauney(points, ctx);
+    m.draw(ctx, false);
+    drawPointsVoronoi(m, ctx);
+  }
+  if(VISUALISATION == 4){
+    let m = TriangulationDelauney(points, ctx);
+    m.draw(ctx, false);
+    drawVoronoi(m, ctx);
+  }
+  if(VISUALISATION == 5 || VISUALISATION == 0){
+    let m = TriangulationDelauney(points, ctx);
+    drawVoronoi(m, ctx);
   }
   for(let i = 0; i < points.length; i++){
     points[i].draw(ctx);
   };
+}
+
+function startDelaunay(){
+  VISUALISATION = 1;
+  points = randomizePoints(35, center, min / 2.5);
+}
+
+function startCercleInscrits(){
+  VISUALISATION = 2;
+  points = randomizePoints(3 * 4, center, min / 2.5);
+}
+
+function startVoronoiPoints(){
+  VISUALISATION = 3;
+  points = randomizePoints(35, center, min / 2.5);
+}
+
+function startVoronoiDelaunay(){
+  VISUALISATION = 4;
+  points = randomizePoints(20, center, min / 2.5);
+}
+
+function startVoronoiAlone(){
+  VISUALISATION = 5;
+  points = randomizePoints(20, center, min / 2.5);
 }
 
 function generatePoints(){
@@ -81,7 +118,7 @@ function getCenterFace(m, ctx, faceId, centerFaces){
   return centerFaces[faceId];
 }
 
-function drawDelanoi(m, ctx){
+function drawVoronoi(m, ctx){
   let centerFaces = [];
   for(let i = 0; i < m.faces.length; i++){
     let center = getCenterFace(m, ctx, i, centerFaces);
@@ -119,41 +156,65 @@ function drawDelanoi(m, ctx){
   }
 }
 
+function drawPointsVoronoi(m, ctx){
+  let centerFaces = [];
+  for(let i = 0; i < m.faces.length; i++){
+    let center = getCenterFace(m, ctx, i, centerFaces);
+    center.draw(ctx, "#0000ff");
+  }
+}
+
+
+//Renvois la magnitude d'un vecteur
+function magnitude(v1){
+  return Math.sqrt(Math.pow(v1.x, 2) + Math.pow(v1.y, 2));
+}
+
+//Renvois l'angle en dégrés entre deux vecteurs
 function angleVector(v1, v2){
   let v1_dist = magnitude(v1);
   let v2_dist = magnitude(v2);
   return Math.acos(dotProduct(v1, v2) / (v1_dist * v2_dist)) * (180 / Math.PI);
 }
 
-function magnitude(v1){
-  return Math.sqrt(Math.pow(v1.x, 2) + Math.pow(v1.y, 2));
-}
-
+//Normalise un vecteur
 function normalize(v1) {
   let m = magnitude(v1);
   return v1.devide(m);
 };
 
+//Dot Product
 function dotProduct(v1, v2){
   return v1.x * v2.x + v1.y * v2.y;
 }
 
+/**
+ * Permet d'obtenir le centre du cercle circonscrit à 3 points
+ * Il se résume par l'intersection de tangente de deux côtés différents appartenant au triangle
+ * ce point sera à équidistance de A, B et C
+ * @param  {Point}  A
+ * @param  {Point}  B
+ * @param  {Point}  C
+ * @return {Point} le centre
+ */
 function drawCircleCirconscrit(A, B, C, debug = false){
   const radians = (Math.PI / 180) * 90;
 
+  //Calcul du centre du segment AB
   const K = new Vertex((A.x + B.x) / 2, (A.y + B.y) / 2, (A.z + B.z) / 2);
   const nx = K.distance(A) * (Math.cos(radians) * (A.x - K.x)) + (Math.sin(radians) * (A.y - K.y)) + K.x;
   const ny = K.distance(A) * (Math.cos(radians) * (A.y - K.y)) - (Math.sin(radians) * (A.x - K.x)) + K.y;
   const A2 = new Vertex(nx, ny, 0);
 
+  //Calcul du centre du segment AC
   const K2 = new Vertex((A.x + C.x) / 2, (A.y + C.y) / 2, (A.z + C.z) / 2);
   const nx2 = K2.distance(A) * (Math.cos(radians) * (A.x - K2.x)) + (Math.sin(radians) * (A.y - K2.y)) + K2.x;
   const ny2 = K2.distance(A) * (Math.cos(radians) * (A.y - K2.y)) - (Math.sin(radians) * (A.x - K2.x)) + K2.y;
   const C2 = new Vertex(nx2, ny2, 0);
 
-  const droiteA = droite(A2, K);
-  const droiteB = droite(C2, K2);
-  const center = intersectionDroite(droiteA, droiteB);
+  const droiteA = droite(A2, K); //Création de la tangente à AB
+  const droiteB = droite(C2, K2); //Création de la tangente à AC
+  const center = intersectionDroite(droiteA, droiteB); //Intersection des tangentes
   if(debug){
     center.draw(ctx, "#0000ff");
 
@@ -176,6 +237,7 @@ function pointInsideTriangle(s, a, b, c) {
     return true;
 }
 
+//Permet d'obtenir la droite passant par A et B
 //y=mx+p
 function droite(A, B){
   // console.log(A, B);
@@ -184,15 +246,17 @@ function droite(A, B){
   return {m, p}
 }
 
-function resolveDroite(d, x){
-  return new Vertex(x, d.m * x + d.p, 0);
-}
-
+// Permet d'obtenir le point intersectant les droites d1 et d2
 // d1.m * x + d1.p = d2.m * x + d2.p
 // x = (d2.p - d1.p) / (d2.m - d1.m)
 function intersectionDroite(d1, d2){
   let x = (- d2.p + d1.p) / (d2.m - d1.m);
   return new Vertex(x, d1.m * x + d1.p, 0);
+}
+
+//Permet d'obtenir le point sur une droite
+function resolveDroite(d, x){
+  return new Vertex(x, d.m * x + d.p, 0);
 }
 
 function grabPoint(){

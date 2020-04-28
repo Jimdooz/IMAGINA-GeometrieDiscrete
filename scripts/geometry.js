@@ -8,12 +8,12 @@ class Mesh {
   getFace(i){ return this.faces[i]; }
   getVertex(i){ return this.vertices[i]; }
 
-  draw(ctx){
+  draw(ctx, infos = true){
     for(let i = 0; i < this.vertices.length; i++){
-      this.vertices[i].draw(ctx);
+      this.vertices[i].draw(ctx, infos);
     }
     for(let i = 0; i < this.hedges.length; i++){
-      this.hedges[i].draw(ctx,i, this);
+      this.hedges[i].draw(ctx,i, this, "#000", infos);
     }
   }
 
@@ -243,10 +243,10 @@ class Mesh {
     let o_oppPrev = mainHedge.prev;
     let o_prev = mainHedgeOpposite.prev;
     let o_oppNextOpp = this.getHEdge(mainHedge.next).opposite;
-    //Vertex correction
+    //correction des Vertex
     if(mainHedge.vhead == this.getVertex(mainHedge.vhead).edge) this.getVertex(mainHedge.vhead).edge = oppNextOpp;
     if(mainHedgeOpposite.vhead == this.getVertex(mainHedgeOpposite.vhead).edge) this.getVertex(mainHedgeOpposite.vhead).edge = o_oppNextOpp;
-    //Adjacent first
+    //Adjacent en premier
     this.getHEdge(mainHedge.prev).next = oppNext;
     this.getHEdge(mainHedge.prev).prev = self;
     this.getHEdge(mainHedge.next).next = opp;
@@ -260,17 +260,22 @@ class Mesh {
     this.getHEdge(mainHedgeOpposite.next).prev = o_oppPrev;
     this.getHEdge(o_self).next = o_prev;
     this.getHEdge(o_self).prev = o_oppNext;
-    //UpdateFaces
+    //On Update les faces
     this.getHEdge(prev).face = this.getHEdge(self).face;
     this.getHEdge(oppNext).face = this.getHEdge(self).face;
     this.getHEdge(o_prev).face = this.getHEdge(o_self).face;
     this.getHEdge(o_oppNext).face = this.getHEdge(o_self).face;
-    //Updates HEdges of faces
+    //On Update les HEdges des faces
     this.getFace(this.getHEdge(self).face).edges = [prev, self, oppNext];
     this.getFace(this.getHEdge(o_self).face).edges = [o_prev, o_self, o_oppNext];
   }
 
-  recursiveCorrection(iHedge, maxRecursion = 20){
+  /**
+   * recursiveCorrection permet d'effectuer une succession de flip si les différentes edges sont illégales
+   * @param  {Number} iHedge            l'identifiant de l'edge
+   * @param  {Number} [maxRecursion=50] éviter une boucle infinie
+   */
+  recursiveCorrection(iHedge, maxRecursion = 15){
     if(!this.legalEdge(iHedge) && maxRecursion > 0){
       this.flipHEdge(iHedge);
       this.recursiveCorrection(this.getHEdge(iHedge).next, --maxRecursion);
@@ -323,7 +328,7 @@ class HEdge {
     this.face = face;
   }
 
-  draw(ctx, i, mesh, color){
+  draw(ctx, i, mesh, color, infos){
     let c = color || '#000';
     let headlen = 10; // length of head in pixels
     ctx.textAlign = 'center';
@@ -346,7 +351,7 @@ class HEdge {
     ctx.beginPath();
     canvas_arrow(ctx, oppositePoint.x + displacmentX, oppositePoint.y + displacmentY, point.x + displacmentX, point.y + displacmentY);
     ctx.stroke();
-    ctx.fillText('E' + i, (oppositePoint.x + point.x) / 2 + headlen * Math.cos(angle + Math.PI / 2), (oppositePoint.y + point.y) / 2 + headlen * Math.sin(angle + Math.PI / 2));
+    if(infos) ctx.fillText('E' + i, (oppositePoint.x + point.x) / 2 + headlen * Math.cos(angle + Math.PI / 2), (oppositePoint.y + point.y) / 2 + headlen * Math.sin(angle + Math.PI / 2));
   }
 }
 

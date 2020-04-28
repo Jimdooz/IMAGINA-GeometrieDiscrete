@@ -22,6 +22,11 @@
           </div>
           <h3 class="font-h5 -light">TP3 - Triangulation de Delaunay et Diagramme de Voronoï <span class="badge -roundest back-1">Géométrie Discrète</span></h3>
           <p>Romain Saclier</p>
+          <div class="-flexRBetween">
+            <a href="TP1.html" class="btn -roundest -f-mult2 -margALL padding-min back-3">TP1</a>
+            <a href="TP2.html" class="btn -roundest -f-mult2 -margALL padding-min back-3">TP2</a>
+            <a href="TP3.html" class="btn -roundest -f-mult2 -margALL padding-min back-3">TP3</a>
+          </div>
           <div class="-flexCStart -align-ifill -margT margin-very-long">
             <!-- EXERCICE 1 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">1</span>En utilisant les types des TP précédente, vous devrier être capable de : stocker un triangle / retrouver le triangle adjacent à une arête dans une triangulation.</p>
@@ -29,36 +34,339 @@
             <!-- EXERCICE 2 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">2</span> Écrivez une fonction vérifiant si une arête de la triangulation est légale</p>
             <p class="-margV pointer" onclick="document.getElementById('LEGAL_ARRETE').classList.toggle('hide-display')">Fonction arrête légale (cliquez ici pour voir le code)</p>
-<pre class="prettyprint -flexCStart -align-ifill hide-display" id="LEGAL_ARRETE"><code class="javascript"></code></pre>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="LEGAL_ARRETE"><code class="javascript">//Renvois la magnitude d'un vecteur
+function magnitude(v1){
+  return Math.sqrt(Math.pow(v1.x, 2) + Math.pow(v1.y, 2));
+}
+
+//Renvois l'angle en dégrés entre deux vecteurs
+function angleVector(v1, v2){
+  let v1_dist = magnitude(v1);
+  let v2_dist = magnitude(v2);
+  return Math.acos(dotProduct(v1, v2) / (v1_dist * v2_dist)) * (180 / Math.PI);
+}
+
+//Renvois vrai si pour une id de HEdge donné, celle-ci est légale
+// Elle est l'équivalent de savoir si le cercle inscrit du premier triangle formé par le triangle possédant l'edge
+// Inclus le point opposé du triangle opposé l'edge
+function legalEdge(iHedge){
+  let mainHedge = this.getHEdge(iHedge);
+  let mainHedgeOpposite = this.getHEdge(this.getHEdge(iHedge).opposite);
+  if(mainHedge.face == undefined || mainHedgeOpposite.face == undefined) return true;
+
+  let face1_start = this.getVertex(this.getHEdge(mainHedge.next).vhead);
+  let face1_second = this.getVertex(mainHedge.vhead);
+  let face1_third = this.getVertex(this.getHEdge(mainHedge.opposite).vhead);
+
+  let face2_start = this.getVertex(this.getHEdge(mainHedgeOpposite.next).vhead);
+  let face2_second = this.getVertex(mainHedgeOpposite.vhead);
+  let face2_third = this.getVertex(this.getHEdge(mainHedgeOpposite.opposite).vhead);
+
+  let Face1_Vector1 = createVector(face1_start, face1_second);
+  let Face1_Vector2 = createVector(face1_start, face1_third);
+  let angleFace1 = angleVector(Face1_Vector1, Face1_Vector2);
+
+  let Face2_Vector1 = createVector(face2_start, face2_second);
+  let Face2_Vector2 = createVector(face2_start, face2_third);
+  let angleFace2 = angleVector(Face2_Vector1, Face2_Vector2);
+
+  //Si la somme des angle est supérieure à 180 alors l'edge n'est pas légale
+  return angleFace1 + angleFace2 < 180;
+}</code></pre>
             <!-- EXERCICE 3 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">3</span>  Écrivez la fonction de Flip.</p>
             <p class="-margV pointer" onclick="document.getElementById('FLIP').classList.toggle('hide-display')">Fonction Flip (cliquez ici pour voir le code)</p>
-<pre class="prettyprint -flexCStart -align-ifill hide-display" id="FLIP"><code class="javascript"></code></pre>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="FLIP"><code class="javascript">flipHEdge(iHedge){
+  let mainHedge = this.getHEdge(iHedge);
+  let mainHedgeOpposite = this.getHEdge(this.getHEdge(iHedge).opposite);
+
+  if(mainHedge.face == undefined || mainHedgeOpposite.face == undefined) return true;
+  mainHedge.vhead = this.getHEdge(mainHedge.next).vhead;
+  mainHedgeOpposite.vhead = this.getHEdge(mainHedgeOpposite.next).vhead;
+  //Calcul suivant précédents
+  let oppNext = mainHedgeOpposite.next;
+  let self = iHedge;
+  let opp = mainHedge.opposite;
+  let oppPrev = mainHedgeOpposite.prev;
+  let prev = mainHedge.prev;
+  let oppNextOpp = this.getHEdge(mainHedgeOpposite.next).opposite;
+  //Opposite
+  let o_oppNext = mainHedge.next;
+  let o_self = mainHedge.opposite;
+  let o_opp = iHedge;
+  let o_oppPrev = mainHedge.prev;
+  let o_prev = mainHedgeOpposite.prev;
+  let o_oppNextOpp = this.getHEdge(mainHedge.next).opposite;
+  //correction des Vertex
+  if(mainHedge.vhead == this.getVertex(mainHedge.vhead).edge) this.getVertex(mainHedge.vhead).edge = oppNextOpp;
+  if(mainHedgeOpposite.vhead == this.getVertex(mainHedgeOpposite.vhead).edge) this.getVertex(mainHedgeOpposite.vhead).edge = o_oppNextOpp;
+  //Adjacent en premier
+  this.getHEdge(mainHedge.prev).next = oppNext;
+  this.getHEdge(mainHedge.prev).prev = self;
+  this.getHEdge(mainHedge.next).next = opp;
+  this.getHEdge(mainHedge.next).prev = oppPrev;
+  this.getHEdge(self).next = prev;
+  this.getHEdge(self).prev = oppNext;
+  //Opposite
+  this.getHEdge(mainHedgeOpposite.prev).next = o_oppNext;
+  this.getHEdge(mainHedgeOpposite.prev).prev = o_self;
+  this.getHEdge(mainHedgeOpposite.next).next = o_opp;
+  this.getHEdge(mainHedgeOpposite.next).prev = o_oppPrev;
+  this.getHEdge(o_self).next = o_prev;
+  this.getHEdge(o_self).prev = o_oppNext;
+  //On Update les faces
+  this.getHEdge(prev).face = this.getHEdge(self).face;
+  this.getHEdge(oppNext).face = this.getHEdge(self).face;
+  this.getHEdge(o_prev).face = this.getHEdge(o_self).face;
+  this.getHEdge(o_oppNext).face = this.getHEdge(o_self).face;
+  //On Update les HEdges des faces
+  this.getFace(this.getHEdge(self).face).edges = [prev, self, oppNext];
+  this.getFace(this.getHEdge(o_self).face).edges = [o_prev, o_self, o_oppNext];
+}</code></pre>
             <!-- EXERCICE 4 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">4</span> Écrivez l’algorithme de calcul incrémental de la triangulation de Delaunay.</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startDelaunay()">Visualiser Triangulation de Delaunay</button>
             <p class="-margV pointer" onclick="document.getElementById('Delaunay').classList.toggle('hide-display')">Fonction Triangle de Delaunay (cliquez ici pour voir le code)</p>
-<pre class="prettyprint -flexCStart -align-ifill hide-display" id="Delaunay"><code class="javascript"></code></pre>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="Delaunay"><code class="javascript">/**
+ * recursiveCorrection permet d'effectuer une succession de flip si les différentes edges sont illégales
+ * @param  {Number} iHedge            l'identifiant de l'edge
+ * @param  {Number} [maxRecursion=50] éviter une boucle infinie
+ */
+recursiveCorrection(iHedge, maxRecursion = 50){
+  if(!this.legalEdge(iHedge) && maxRecursion > 0){
+    this.flipHEdge(iHedge);
+    this.recursiveCorrection(this.getHEdge(iHedge).next, --maxRecursion);
+    this.recursiveCorrection(this.getHEdge(iHedge).prev, --maxRecursion);
+    this.recursiveCorrection(this.getHEdge(this.getHEdge(iHedge).opposite).next, --maxRecursion);
+    this.recursiveCorrection(this.getHEdge(this.getHEdge(iHedge).opposite).prev, --maxRecursion);
+  }
+}
+
+/**
+ * TriangulationDelauney
+ * @param       {Points} givenPoints les points de la triangulation
+ * @constructor
+ */
+function TriangulationDelauney(givenPoints){
+    let m = new Mesh();
+
+    //Sort points
+    let points = lexicographiqueSort(givenPoints);
+
+    //On ajoute les points à l'enveloppe convexe
+    let iv0 = m.addVertex(points[0]);
+  	let iv1 = m.addVertex(points[1]);
+  	let iv2 = m.addVertex(points[2]);
+
+    //Ajout de la première face
+	  m.addFace(iv0, iv1, iv2);
+
+    let ilastVertex = iv2;
+    let nbPoints = 3;
+    let totalPoints = points[0].add(points[1]).add(points[2]);
+    let O = totalPoints.devide(nbPoints);
+
+    for(let i=3;i < points.length;++i){
+      //Dernier point vu
+      let lastVertex = m.getVertex(ilastVertex);
+      let edgeEnveloppe = incidentEdgeNoFace(m, ilastVertex); //L'Edge qui permet de débuter le chemin de l'enveloppe convexe
+
+      let edgeCalcul = edgeEnveloppe;
+      let horizonF = ilastVertex; //La position du vertex sur l'horizon en exerçant un parcours vers l'avant
+      let horizonB = ilastVertex; //La position du vertex sur l'horizon en exerçant un parcours vers l'arrière
+      let HEdgeHorizonF = undefined;
+      let HEdgeHorizonB = edgeEnveloppe;
+      let foundF = false; //Condition de sortie si on a trouvé l'horizon du parcours avant
+      let foundB = false; //Condition de sortie si on a trouvé l'horizon du parcours arrière
+      let max = 200;
+
+      //Côté forward
+      while(!foundF){
+          if(--max < 0) break;
+          let nextEdge = m.getHEdge(edgeCalcul); //On récupère l'edge pour calculer la tête
+          if(!nextEdge){ return m; } //Parfois la génération de points créé des points au même endroit
+          let headId = nextEdge.vhead; //On récupère l'id de la tête
+          let head = m.getVertex(headId); //On obtient les information sur le point
+          if(pointVisible(points[i], O, head, lastVertex)){
+            HEdgeHorizonF = edgeCalcul;
+            edgeCalcul = nextEdge.next;
+            lastVertex = head;
+            horizonF = headId;
+          }else{
+            foundF = true;
+          }
+          if(horizonF == 0) foundF = true; //Si on a trouvé le premier point alors on s'arrête on évite de boucle la recherche dans le cas de 3 points visible
+      }
+
+      // Côté Backward
+      edgeCalcul = m.getHEdge(edgeEnveloppe).prev;
+      lastVertex = m.getVertex(ilastVertex); //On réinitialise le dernier point vu
+      while(!foundB){
+          if(--max < 0) break;
+          let nextEdge = m.getHEdge(edgeCalcul); //On récupère l'edge pour calculer la tête de son opposé
+          let headId = m.getHEdge(nextEdge.opposite).vhead; //On récupère l'id de la tête
+          let head = m.getVertex(headId); //On obtient les information sur le point
+          if(pointVisible(points[i], O, head, lastVertex)){
+              HEdgeHorizonB = edgeCalcul;
+              edgeCalcul = nextEdge.prev;
+              lastVertex = head;
+              horizonB = headId;
+          }else{
+              foundB = true;
+          }
+          if(headId == horizonF || horizonB == 0) foundB = true; //Si le prochain point appartient déjà à l'autre horizon alors on s'arrête
+      }
+
+      //On commence d'une extrémité
+      let ivNext = m.addVertex(points[i]);
+      //Création du premier triangle
+      let horizonEdge = m.getHEdge(HEdgeHorizonB); //On récupère l'opposé d'un point de l'horizon
+      let constructorParcours = true;
+      let toBuild = [];
+      // On récupères les différents points de l'horizon qui servirons à construire les différents triangles
+      while(constructorParcours){
+          if(--max < 0) break;
+          let nextHead = horizonEdge.vhead;
+          toBuild.push(nextHead);
+          toBuild.push(ivNext);
+          toBuild.push(horizonB);
+          if(nextHead == horizonF) constructorParcours = false;
+          horizonB = nextHead;
+          horizonEdge = m.getHEdge(horizonEdge.next);
+      }
+      // On construit les différents triangles
+      for(let i = 0; i < toBuild.length; i+=3){
+        horizonEdge = m.getHEdge(HEdgeHorizonB);
+        let copyHEdgeHorizonB = HEdgeHorizonB;
+        HEdgeHorizonB = horizonEdge.next;
+        m.addFace(toBuild[i], toBuild[i+1], toBuild[i+2]);
+        // On lance une correction successive de flip si les edges sont illégales
+        m.recursiveCorrection(copyHEdgeHorizonB);
+      }
+      // On défini la nouvelle dernière vertex vue
+      ilastVertex = ivNext;
+      // On update la position de O
+      totalPoints = totalPoints.add(points[i]);
+      nbPoints++;
+      O = totalPoints.devide(nbPoints);
+    }
+
+    return m;
+}</code></pre>
             <!-- EXERCICE 5 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">5</span>  Écrivez une fonction calculant le centre du cercle circonscrit à un triangle.</p>
             <p class="-margV pointer" onclick="document.getElementById('CERCLE_CIRCONSCRIT').classList.toggle('hide-display')">Fonction Cercle circonscrit (cliquez ici pour voir le code)</p>
-<pre class="prettyprint -flexCStart -align-ifill hide-display" id="CERCLE_CIRCONSCRIT"><code class="javascript"></code></pre>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="CERCLE_CIRCONSCRIT"><code class="javascript">//Permet d'obtenir la droite passant par A et B
+//y=mx+p
+function droite(A, B){
+  // console.log(A, B);
+  let m = (B.y - A.y) / (B.x - A.x);
+  let p = A.y - m * A.x;
+  return {m, p}
+}
+
+// Permet d'obtenir le point intersectant les droites d1 et d2
+// d1.m * x + d1.p = d2.m * x + d2.p
+// x = (d2.p - d1.p) / (d2.m - d1.m)
+function intersectionDroite(d1, d2){
+  let x = (- d2.p + d1.p) / (d2.m - d1.m);
+  return new Vertex(x, d1.m * x + d1.p, 0);
+}
+
+/**
+ * Permet d'obtenir le centre du cercle circonscrit à 3 points
+ * Il se résume par l'intersection de tangente de deux côtés différents appartenant au triangle
+ * ce point sera à équidistance de A, B et C
+ * @param  {Point}  A
+ * @param  {Point}  B
+ * @param  {Point}  C
+ * @return {Point} le centre
+ */
+function CircleCirconscrit(A, B, C){
+  const radians = (Math.PI / 180) * 90;
+
+  //Calcul du centre du segment AB
+  const K = new Vertex((A.x + B.x) / 2, (A.y + B.y) / 2, (A.z + B.z) / 2);
+  const nx = K.distance(A) * (Math.cos(radians) * (A.x - K.x)) + (Math.sin(radians) * (A.y - K.y)) + K.x;
+  const ny = K.distance(A) * (Math.cos(radians) * (A.y - K.y)) - (Math.sin(radians) * (A.x - K.x)) + K.y;
+  const A2 = new Vertex(nx, ny, 0);
+
+  //Calcul du centre du segment AC
+  const K2 = new Vertex((A.x + C.x) / 2, (A.y + C.y) / 2, (A.z + C.z) / 2);
+  const nx2 = K2.distance(A) * (Math.cos(radians) * (A.x - K2.x)) + (Math.sin(radians) * (A.y - K2.y)) + K2.x;
+  const ny2 = K2.distance(A) * (Math.cos(radians) * (A.y - K2.y)) - (Math.sin(radians) * (A.x - K2.x)) + K2.y;
+  const C2 = new Vertex(nx2, ny2, 0);
+
+  const droiteA = droite(A2, K); //Création de la tangente à AB
+  const droiteB = droite(C2, K2); //Création de la tangente à AC
+  const center = intersectionDroite(droiteA, droiteB); //Intersection des tangentes
+  return center;
+}</code></pre>
             <!-- EXERCICE 6 -->
-            <p class="-bold -margV"><span class="badge -rounded back-1">6</span> Testez votre fonction en dessinant 2 les cercles circonscrits à des triangles définis aléatoirement à l’aide de la fonction randomizedPoints définie au TP précédent.</p>
+            <p class="-bold -margV"><span class="badge -rounded back-1">6</span> Testez votre fonction en dessinant les cercles circonscrits à des triangles définis aléatoirement à l’aide de la fonction randomizedPoints définie au TP précédent.</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startCercleInscrits()">Générer des cercles inscrits</button>
             <p class="-margV pointer" onclick="document.getElementById('CERCLE_CIRCONSCRIT_RANDOM').classList.toggle('hide-display')">Fonction Génération de cercle circonscrit (cliquez ici pour voir le code)</p>
-<pre class="prettyprint -flexCStart -align-ifill hide-display" id="CERCLE_CIRCONSCRIT_RANDOM"><code class="javascript"></code></pre>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="CERCLE_CIRCONSCRIT_RANDOM"><code class="javascript">//Génération de cercles avec des points aléatoires
+// center représente le point au centre de la scène , min représente le minimum entre la hauteur et la largeur de la scène
+points = randomizePoints(3 * 4, center, min / 2.5);
+for(let i = 0; i < points.length; i += 3){
+  drawCircleCirconscrit(points[i], points[i + 1], points[i + 2]); //Permet d'afficher le cercle circonscrit
+}</code></pre>
             <!-- EXERCICE 7 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">7</span>  Calculez, à partir d’une triangulation de Delaunay, les points du diagramme de Voronoï</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startVoronoiPoints()">Visualiser les points de Voronoï</button>
             <p class="-margV pointer" onclick="document.getElementById('POINTS_VORONOÏ').classList.toggle('hide-display')">Fonction Génération de points de Voronoï (cliquez ici pour voir le code)</p>
-<pre class="prettyprint -flexCStart -align-ifill hide-display" id="POINTS_VORONOÏ"><code class="javascript"></code></pre>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="POINTS_VORONOÏ"><code class="javascript">//Génération de cercles avec des points aléatoires
+// center représente le point au centre de la scène , min représente le minimum entre la hauteur et la largeur de la scène
+let points = randomizePoints(50, center, min / 2.5);
+let m = TriangulationDelauney(points);
+for(let i = 0; i < m.faces.length; i++){
+  let edges = m.getEdgesFace(m.faces[i]);
+  let center = CircleCirconscrit(m.getVertex(edges[0]).vhead), m.getVertex(edges[1]).vhead), m.getVertex(edges[2]).vhead));
+  center.draw(); //Permet d'afficher le point
+}</code></pre>
             <!-- EXERCICE 8 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">8</span> Dessinez le diagramme de Voronoï correspondant.</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart -margV" onclick="startVoronoiDelaunay()">diagramme de Voronoï avec Delaunay</button>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart -margV" onclick="startVoronoiAlone()">diagramme de Voronoï</button>
-            <p class="-margV pointer" onclick="document.getElementById('POINTS_VORONOÏ').classList.toggle('hide-display')">Fonction Génération de diagramme de Voronoï (cliquez ici pour voir le code)</p>
-<pre class="prettyprint -flexCStart -align-ifill hide-display" id="POINTS_VORONOÏ"><code class="javascript"></code></pre>
+            <p class="-margV pointer" onclick="document.getElementById('GENERATION_DIAG').classList.toggle('hide-display')">Fonction Génération de diagramme de Voronoï (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="GENERATION_DIAG"><code class="javascript">function drawVoronoi(m, ctx){
+  let centerFaces = [];
+  for(let i = 0; i < m.faces.length; i++){
+    let center = getCenterFace(m, ctx, i, centerFaces);
+
+    const drawSegment = (hedge) => {
+      let tmpId = hedge;
+      hedge = m.getHEdge(hedge);
+      if(hedge.face == undefined){
+        let p1 = m.getVertex(hedge.vhead);
+        let p2 = m.getVertex(m.getHEdge(hedge.opposite).vhead);
+        let p3 = m.getVertex(m.getHEdge(m.getHEdge(hedge.opposite).next).vhead);
+        let centerTriangle = p1.add(p2).add(p3).devide(3);
+
+        let pcenter = p1.add(p2).devide(2);
+        let v = createVector(center, pcenter);
+        let v2 = createVector(centerTriangle, pcenter);
+        if(dotProduct(v, v2) < 0) v = v.devide(-1);
+        v = normalize(v);
+        ctx.moveTo(center.x, center.y);
+        ctx.lineTo(v.x * maxNumber + center.x, v.y * maxNumber + center.y);
+        ctx.stroke();
+      }else{
+        let otherFaceCenter = getCenterFace(m, ctx, hedge.face, centerFaces);
+        ctx.moveTo(center.x, center.y);
+        ctx.lineTo(otherFaceCenter.x, otherFaceCenter.y);
+        ctx.stroke();
+      }
+    }
+
+    ctx.strokeStyle = "#0000ff";
+    let edges = m.getFace(i).edges;
+    drawSegment(m.getHEdge(edges[0]).opposite);
+    drawSegment(m.getHEdge(edges[1]).opposite);
+    drawSegment(m.getHEdge(edges[2]).opposite);
+  }
+}</code></pre>
           </div>
         </div>
       </article>

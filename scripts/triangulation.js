@@ -142,7 +142,7 @@ function Triangulation(givenPoints, ctx, version2 = false, debug = false){
     return m;
 }
 
-function TriangulationDelauney(givenPoints, ctx, version2 = false, debug = false){
+function TriangulationDelauney(givenPoints, ctx){
     let m = new Mesh();
 
     //Sort points
@@ -153,7 +153,8 @@ function TriangulationDelauney(givenPoints, ctx, version2 = false, debug = false
   	let iv1 = m.addVertex(points[1]);
   	let iv2 = m.addVertex(points[2]);
 
-	  m.addFace(iv0, iv1, iv2); //Ajout de la première face
+    //Ajout de la première face
+	  m.addFace(iv0, iv1, iv2);
 
     let ilastVertex = iv2;
     let nbPoints = 3;
@@ -161,10 +162,8 @@ function TriangulationDelauney(givenPoints, ctx, version2 = false, debug = false
     let O = totalPoints.devide(nbPoints);
 
     for(let i=3;i<points.length;++i){
-
       //Dernier point vu
       let lastVertex = m.getVertex(ilastVertex);
-      // drawVertex(lastVertex, ctx, '#0000ff');
       let edgeEnveloppe = incidentEdgeNoFace(m, ilastVertex); //L'Edge qui permet de débuter le chemin de l'enveloppe convexe
 
       let edgeCalcul = edgeEnveloppe;
@@ -174,7 +173,7 @@ function TriangulationDelauney(givenPoints, ctx, version2 = false, debug = false
       let HEdgeHorizonB = edgeEnveloppe;
       let foundF = false; //Condition de sortie si on a trouvé l'horizon du parcours avant
       let foundB = false; //Condition de sortie si on a trouvé l'horizon du parcours arrière
-      let max = 200;
+      let max = 50;
 
       //Côté forward
       while(!foundF){
@@ -194,7 +193,7 @@ function TriangulationDelauney(givenPoints, ctx, version2 = false, debug = false
           if(horizonF == 0) foundF = true; //Si on a trouvé le premier point alors on s'arrête on évite de boucle la recherche dans le cas de 3 points visible
       }
 
-
+      // Côté Backward
       edgeCalcul = m.getHEdge(edgeEnveloppe).prev;
       lastVertex = m.getVertex(ilastVertex); //On réinitialise le dernier point vu
       while(!foundB){
@@ -219,6 +218,7 @@ function TriangulationDelauney(givenPoints, ctx, version2 = false, debug = false
       let horizonEdge = m.getHEdge(HEdgeHorizonB); //On récupère l'opposé d'un point de l'horizon
       let constructorParcours = true;
       let toBuild = [];
+      // On récupères les différents points de l'horizon qui servirons à construire les différents triangles
       while(constructorParcours){
           if(--max < 0) break;
           let nextHead = horizonEdge.vhead;
@@ -229,16 +229,18 @@ function TriangulationDelauney(givenPoints, ctx, version2 = false, debug = false
           horizonB = nextHead;
           horizonEdge = m.getHEdge(horizonEdge.next);
       }
-
+      // On construit les différents triangles
       for(let i = 0; i < toBuild.length; i+=3){
         horizonEdge = m.getHEdge(HEdgeHorizonB);
         let copyHEdgeHorizonB = HEdgeHorizonB;
         HEdgeHorizonB = horizonEdge.next;
         m.addFace(toBuild[i], toBuild[i+1], toBuild[i+2]);
-        if(version2) m.recursiveCorrection(copyHEdgeHorizonB);
+        // On lance une correction successive de flip si les edges sont illégales
+        m.recursiveCorrection(copyHEdgeHorizonB);
       }
+      // On défini la nouvelle dernière vertex vue
       ilastVertex = ivNext;
-
+      // On update la position de O
       totalPoints = totalPoints.add(points[i]);
       nbPoints++;
       O = totalPoints.devide(nbPoints);
