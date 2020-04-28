@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/cartonboite.css">
+    <title>TP1 - Half Edge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.1/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </head>
+  <body class="-flexCStart -align-ifill -align-sfill ">
+    <section class="-flexRBetween -align-ifill flex1 -flexWrap">
+      <article class="-flexCStart -align-ifill back-clear -shadow -f-mult8 overflow-v centPV">
+        <div class="padding-very-long -flexCStart -align-ifill">
+          <div class="-flexRBetween">
+            <h1 class="font-h3 -boldest">Master Imagina</h1>
+            <div class="-flexCStart">
+              <img src="images/moon.svg" alt="night" class="-size-min nightImg -dark-logo pointer" onclick="document.body.classList.toggle('NIGHT')">
+            </div>
+          </div>
+          <h3 class="font-h5 -light">TP1 - Half Edge <span class="badge -roundest back-1">Géométrie Discrète</span></h3>
+          <p>Romain Saclier</p>
+          <div class="-flexCStart -align-ifill -margT margin-very-long">
+            <p class="-bold -margV"><span class="badge -rounded back-1">1</span> Définissez et implémentez les structures HEdge , Vextex et Face</p>
+            <p class="-margV pointer" onclick="document.getElementById('HEDGE_STRUCTURE').classList.toggle('hide-display')">Structure HEdge (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="HEDGE_STRUCTURE"><code class="javascript">/**
+* HEdge représente une demi arrête ( Half Edge )
+* Il pointe vers un Vertex
+* Vers sont suivant et précédent et opposé
+* Et appartient à une face
+*/
+class HEdge {
+  constructor(vhead, next, prev, opposite, face){
+    this.vhead = vhead;       // Le vertex pointé par le Half Edge
+    this.next = next;         // Représente la HEdge suivant
+    this.prev = prev;         // Représente la HEdge précédente
+    this.opposite = opposite; // Représente la HEdge opposé
+    this.face = face;         // Représente la face auquel appartient la HEdge
+  }
+}</code></pre>
+            <p class="-margV pointer" onclick="document.getElementById('VERTEX_STRUCTURE').classList.toggle('hide-display')">Structure Vertex (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="VERTEX_STRUCTURE"><code class="javascript">/**
+ * La Vertex représente un point du maillage
+ * Il possède des positions dans l'espace
+ * Et un pointeur vers la HEdge qui l'a en tête
+ */
+class Vertex {
+  constructor(x, y, z){
+    this.x = x; //La position x de la vertex
+    this.y = y; //La position y de la vertex
+    this.z = z; //La position z de la vertex
+    this.edge = undefined; //La Edge qui est connecté à ce vertex
+  }
+}</code></pre>
+            <p class="-margV pointer" onclick="document.getElementById('FACE_STRUCTURE').classList.toggle('hide-display')">Structure Face (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="FACE_STRUCTURE"><code class="javascript">/**
+ * La Face représente une face d'un triangle dans le maillage
+ * Il pointe vers une de ses HEdge qui le compose
+ */
+class Face {
+  constructor(){
+    this.edge = undefined; //On initialise la Face avec un edge non défini
+  }
+}</code></pre>
+            <p class="-bold -margV"><span class="badge -rounded back-1">2</span> Définissez le type maillage à partir des structures définis à la question précédente</p>
+            <p class="-margV pointer" onclick="document.getElementById('MESH_STRUCTURE').classList.toggle('hide-display')">Le Maillage (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="MESH_STRUCTURE"><code class="javascript">/**
+  * La classe Mesh représente le maillage,
+  * il possède une liste de vertex, une liste de HEdge et une liste de Face
+  */
+class Mesh {
+  constructor(){
+    this.vertices = [];
+    this.faces = [];
+    this.hedges = [];
+  }
+  getHEdge(i){ return this.hedges[i]; }     //Permet d'obtenir la HEdge i
+  getFace(i){ return this.faces[i]; }       //Permet d'obtenir la Face i
+  getVertex(i){ return this.vertices[i]; }  //Permet d'obtenir la Vertex i
+}</code></pre>
+            <p class="-bold -margV"><span class="badge -rounded back-1">3</span> Ajoutez à ce type les fonctions suivantes, ajout d’une face, sommets d’une face, sommets d’une arête, faces adjacentes à une arête, arêtes d’une face</p>
+            <p class="-margV pointer" onclick="document.getElementById('ADD_FACE').classList.toggle('hide-display')">ajout d’une face (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="ADD_FACE"><code class="javascript">function addFace(idV0, idV1, idV2){
+  // 1 - On créé la nouvelle face
+  let face = new Face();
+  this.faces.push(face);
+  let f = this.faces.length - 1;
+
+  // 2 - On récupère la liste des HEdges incidents aux Vertex
+  let incidentV0 = this.incidentEdgeVertex(idV0);
+  let incidentV1 = this.incidentEdgeVertex(idV1);
+  let incidentV2 = this.incidentEdgeVertex(idV2);
+
+  // 3 - Création des variables qui contiendrons les HEdges qui relient les Vertex
+  // idV0 -> idV1 = e0
+  // idV1 -> idV2 = e1
+  // idV2 -> idV0 = e2
+  let e0, e1, e2;
+
+  // Création d'une fonction anonyme permettant, pour 2 vertex donné et leur listes de HEdges incidents respectifs
+  // De retourner la HEdge qui les relients, ayant pour idVertex2 comme tête
+  // Si celle-ci n'existe pas alors on l'a créé avec son opposé et on update les listes d'incidences
+  const resolveEdges = (idVertex1, idVertex2, incidentVertex1, incidentVertex2) => {
+    let edgeFound;
+    for (let i = 0; i < incidentVertex1.length; i++) {
+      if (this.getHEdge(incidentVertex1[i]).vhead == idVertex2) {
+        edgeFound = incidentVertex1[i];
+        break;
+      }
+    }
+    if (edgeFound == undefined) {
+      edgeFound = this.hedges.length;
+      let e0Hedge = new HEdge(idVertex2, undefined, undefined, edgeFound + 1, f);
+      let e0HedgeOpposite = new HEdge(idVertex1, undefined, undefined, edgeFound, undefined);
+      this.hedges.push(e0Hedge);
+      this.hedges.push(e0HedgeOpposite);
+      incidentVertex1.push(this.hedges.length - 2);
+      incidentVertex1.push(this.hedges.length - 1);
+      incidentVertex2.push(this.hedges.length - 2);
+      incidentVertex2.push(this.hedges.length - 1);
+    }
+    return edgeFound;
+  }
+
+  e0 = resolveEdges(idV0, idV1, incidentV0, incidentV1);
+  e1 = resolveEdges(idV1, idV2, incidentV1, incidentV2);
+  e2 = resolveEdges(idV2, idV0, incidentV2, incidentV0);
+
+  // 4 - On connecte les différents HEdges au sein du nouveau triangle et on ajoute les différentes liaisons
+  // Connexion des HEdges
+  this.getHEdge(e0).next = e1;
+  this.getHEdge(e1).next = e2;
+  this.getHEdge(e2).next = e0;
+
+  this.getHEdge(e0).prev = e2;
+  this.getHEdge(e1).prev = e0;
+  this.getHEdge(e2).prev = e1;
+
+  //Connexion des HEdges à la face
+  this.getHEdge(e0).face = f;
+  this.getHEdge(e1).face = f;
+  this.getHEdge(e2).face = f;
+
+  //Connexion de la face à une Edge quelconque
+  face.edges[0] = e0;
+  face.edges[1] = e1;
+  face.edges[2] = e2;
+
+  //Si un vertex ne possède pas de Edge associé alors on lui attribue un
+  if (this.getVertex(idV0).edge == undefined) this.getVertex(idV0).edge = e2;
+  if (this.getVertex(idV1).edge == undefined) this.getVertex(idV1).edge = e0;
+  if (this.getVertex(idV2).edge == undefined) this.getVertex(idV2).edge = e1;
+
+  // 5 - On Update les liaisons HEdges opposés si ceux-ci ne possèdent pas de face associés
+  // Le but est de répérer deux HEdges incidents à un Vertex et de les lier dans la bonne direction
+  const resolveLink = (incidents, vId) => {
+    let incidentsNoFace = [];
+    for (let i = 0; i < incidents.length; i++) {
+      if (this.getHEdge(incidents[i]).face == undefined) incidentsNoFace.push(incidents[i]);
+    }
+    if(incidentsNoFace.length >= 2){
+      let first, end;
+      if(this.getHEdge(incidentsNoFace[0]).vhead == vId){ first = 0; end = 1; }
+      else { first = 1; end = 0; }
+      this.getHEdge(incidentsNoFace[first]).next = incidentsNoFace[end];
+      this.getHEdge(incidentsNoFace[end]).prev = incidentsNoFace[first];
+    }
+  }
+
+  resolveLink(incidentV0, idV0);
+  resolveLink(incidentV1, idV1);
+  resolveLink(incidentV2, idV2);
+
+  return f;
+}</code></pre>
+            <p class="-margV pointer" onclick="document.getElementById('SOMMET_FACE').classList.toggle('hide-display')">sommets d’une face (cliquez ici pour voir le code)</p>
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="SOMMET_FACE"><code class="javascript">function getVertexFace(face){
+  let edges = getEdgesFace(face);
+  edges[0] = this.getHEdge(edges[0]).vhead;
+  edges[1] = this.getHEdge(edges[1]).vhead;
+  edges[2] = this.getHEdge(edges[2]).vhead;
+  return edges;
+}</code></pre>
+            <p class="-margV pointer" onclick="document.getElementById('SOMMET_ARRETE').classList.toggle('hide-display')">sommets d’une arête (cliquez ici pour voir le code)</p>
+            <pre class="prettyprint -flexCStart -align-ifill hide-display" id="SOMMET_ARRETE"><code class="javascript">function vertexEdge(e) {
+  let vertices = [];
+  let edge = this.getHEdge(e);
+  vertices.push(edge.vhead);
+  vertices.push(this.getHEdge(edge.opposite).vhead);
+  return vertices;
+}</code></pre>
+            <p class="-margV pointer" onclick="document.getElementById('FACE_ARRETE').classList.toggle('hide-display')">faces adjacentes à une arête (cliquez ici pour voir le code)</p>
+            <pre class="prettyprint -flexCStart -align-ifill hide-display" id="FACE_ARRETE"><code class="javascript">function facesAdajcentEdge(e) {
+	let faces = [];
+	let edge = this.getHEdge(e);
+	face1 = edge.face;
+	face2 = this.getHEdge(edge.opposite).face;
+	if (face1 != undefined) faces.push(face1);
+	if (face2 != undefined) faces.push(face2);
+	return faces;
+}</code></pre>
+            <p class="-margV pointer" onclick="document.getElementById('ARRETE_FACE').classList.toggle('hide-display')">arêtes d’une face (cliquez ici pour voir le code)</p>
+            <pre class="prettyprint -flexCStart -align-ifill hide-display" id="ARRETE_FACE"><code class="javascript">function getEdgesFace(face) {
+  let edges = [];
+  let e = getFace(face).edge;
+  edges.push(e.edge);
+  edges.push(this.getHEdge(e.edge).next);
+  edges.push(this.getHEdge(e.edge).prev);
+  return edges;
+}</code></pre>
+            <!-- EXERCICE 4 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">4</span> Définissez un itérateur permettant de parcourir les arêtes incidentes à un sommet</p>
+            <p class="-margV pointer" onclick="document.getElementById('ITERATOR_EDGES').classList.toggle('hide-display')">Itérateur (cliquez ici pour voir le code)</p>
+            <pre class="prettyprint -flexCStart -align-ifill hide-display" id="ITERATOR_EDGES"><code class="javascript">//Incident Iterator Vertex
+function* incidentIteratorVertex(v){
+  let e = this.getVertex(v).edge;
+  let head = this.getVertex(v).edge;
+  do {
+    yield e;
+    e = this.getHEdge(e).opposite;
+    yield e;
+    e = this.getHEdge(e).prev;
+  } while(e != head);
+}</code></pre>
+            <!-- EXERCICE 5 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">5</span> définisser un itérateur permettant de parcourir les faces du maillage</p>
+            <p class="-margV pointer" onclick="document.getElementById('ITERATOR_FACE').classList.toggle('hide-display')">Itérateur (cliquez ici pour voir le code)</p>
+            <pre class="prettyprint -flexCStart -align-ifill hide-display" id="ITERATOR_FACE"><code class="javascript">function* incidentIteratorFace(){
+  for(let i = 0; i < this.faces.length; i++){
+    yield i;
+  }
+}</code></pre>
+            <!-- EXERCICE 6 -->
+            <p class="-bold -margV"><span class="badge -rounded back-1">6</span> Enfin écrivez un programme qui à l’aide de votre structure crée le maillage d’une d’une pyramide et en sortie affichez le résultat obtenu : pour chaque arête, affichez le sommet incident, l’arête suivante et l’arête précédente, l’arête opposée et la face incidente.</p>
+            <p class="-margV">Voir la figure suivante, les points sont draggable, vous pouvez les déplacer avec votre curseur</p>
+          </div>
+        </div>
+      </article>
+      <article class="-flexCStart -align-ifill -f-mult8 overflow-v" style="height: 100%;">
+        <canvas id="SCENE" class="flex1"></canvas>
+      </article>
+    </section>
+  </body>
+  <script src="scripts/geometry.js" charset="utf-8"></script>
+  <script src="scripts/loop.js" charset="utf-8"></script>
+  <script src="scripts/triangulation.js" charset="utf-8"></script>
+  <!-- <script src="scripts/main.js" charset="utf-8"></script> -->
+  <script src="scripts/TPS/TP1.js" charset="utf-8"></script>
+</html>
