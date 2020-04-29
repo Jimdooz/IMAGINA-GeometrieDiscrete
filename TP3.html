@@ -34,7 +34,7 @@
             <p class="-margV pointer">Voir les TP précédents</p>
             <!-- EXERCICE 2 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">2</span> Écrivez une fonction vérifiant si une arête de la triangulation est légale</p>
-            <p class="-margV pointer" onclick="document.getElementById('LEGAL_ARRETE').classList.toggle('hide-display')">Fonction arrête légale (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('LEGAL_ARRETE').classList.toggle('hide-display')">Fonction arrête légale (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="LEGAL_ARRETE"><code class="javascript">//Renvois la magnitude d'un vecteur
 function magnitude(v1){
   return Math.sqrt(Math.pow(v1.x, 2) + Math.pow(v1.y, 2));
@@ -76,7 +76,7 @@ function legalEdge(iHedge){
 }</code></pre>
             <!-- EXERCICE 3 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">3</span>  Écrivez la fonction de Flip.</p>
-            <p class="-margV pointer" onclick="document.getElementById('FLIP').classList.toggle('hide-display')">Fonction Flip (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('FLIP').classList.toggle('hide-display')">Fonction Flip (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="FLIP"><code class="javascript">flipHEdge(iHedge){
   let mainHedge = this.getHEdge(iHedge);
   let mainHedgeOpposite = this.getHEdge(this.getHEdge(iHedge).opposite);
@@ -127,7 +127,7 @@ function legalEdge(iHedge){
             <!-- EXERCICE 4 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">4</span> Écrivez l’algorithme de calcul incrémental de la triangulation de Delaunay.</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startDelaunay()">Visualiser Triangulation de Delaunay</button>
-            <p class="-margV pointer" onclick="document.getElementById('Delaunay').classList.toggle('hide-display')">Fonction Triangle de Delaunay (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('Delaunay').classList.toggle('hide-display')">Fonction Triangle de Delaunay (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="Delaunay"><code class="javascript">/**
  * recursiveCorrection permet d'effectuer une succession de flip si les différentes edges sont illégales
  * @param  {Number} iHedge            l'identifiant de l'edge
@@ -256,7 +256,7 @@ function TriangulationDelauney(givenPoints){
 }</code></pre>
             <!-- EXERCICE 5 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">5</span>  Écrivez une fonction calculant le centre du cercle circonscrit à un triangle.</p>
-            <p class="-margV pointer" onclick="document.getElementById('CERCLE_CIRCONSCRIT').classList.toggle('hide-display')">Fonction Cercle circonscrit (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('CERCLE_CIRCONSCRIT').classList.toggle('hide-display')">Fonction Cercle circonscrit (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="CERCLE_CIRCONSCRIT"><code class="javascript">//Permet d'obtenir la droite passant par A et B
 //y=mx+p
 function droite(A, B){
@@ -306,7 +306,7 @@ function CircleCirconscrit(A, B, C){
             <!-- EXERCICE 6 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">6</span> Testez votre fonction en dessinant les cercles circonscrits à des triangles définis aléatoirement à l’aide de la fonction randomizedPoints définie au TP précédent.</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startCercleInscrits()">Générer des cercles inscrits</button>
-            <p class="-margV pointer" onclick="document.getElementById('CERCLE_CIRCONSCRIT_RANDOM').classList.toggle('hide-display')">Fonction Génération de cercle circonscrit (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('CERCLE_CIRCONSCRIT_RANDOM').classList.toggle('hide-display')">Fonction Génération de cercle circonscrit (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="CERCLE_CIRCONSCRIT_RANDOM"><code class="javascript">//Génération de cercles avec des points aléatoires
 // center représente le point au centre de la scène , min représente le minimum entre la hauteur et la largeur de la scène
 points = randomizePoints(3 * 4, center, min / 2.5);
@@ -316,7 +316,7 @@ for(let i = 0; i < points.length; i += 3){
             <!-- EXERCICE 7 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">7</span>  Calculez, à partir d’une triangulation de Delaunay, les points du diagramme de Voronoï</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startVoronoiPoints()">Visualiser les points de Voronoï</button>
-            <p class="-margV pointer" onclick="document.getElementById('POINTS_VORONOÏ').classList.toggle('hide-display')">Fonction Génération de points de Voronoï (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('POINTS_VORONOÏ').classList.toggle('hide-display')">Fonction Génération de points de Voronoï (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="POINTS_VORONOÏ"><code class="javascript">//Génération de cercles avec des points aléatoires
 // center représente le point au centre de la scène , min représente le minimum entre la hauteur et la largeur de la scène
 let points = randomizePoints(50, center, min / 2.5);
@@ -330,7 +330,7 @@ for(let i = 0; i < m.faces.length; i++){
             <p class="-bold -margV"><span class="badge -rounded back-1">8</span> Dessinez le diagramme de Voronoï correspondant.</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart -margV" onclick="startVoronoiDelaunay()">diagramme de Voronoï avec Delaunay</button>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart -margV" onclick="startVoronoiAlone()">diagramme de Voronoï</button>
-            <p class="-margV pointer" onclick="document.getElementById('GENERATION_DIAG').classList.toggle('hide-display')">Fonction Génération de diagramme de Voronoï (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('GENERATION_DIAG').classList.toggle('hide-display')">Fonction Génération de diagramme de Voronoï (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="GENERATION_DIAG"><code class="javascript">function drawVoronoi(m, ctx){
   let centerFaces = [];
   for(let i = 0; i < m.faces.length; i++){

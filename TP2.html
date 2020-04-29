@@ -31,7 +31,7 @@
           <div class="-flexCStart -align-ifill -margT margin-very-long">
             <!-- EXERCICE 1 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">1</span> Définissez une structure Point pour stocker un point sous forme de ses coordonnées.</p>
-            <p class="-margV pointer" onclick="document.getElementById('POINT_STRUCTURE').classList.toggle('hide-display')">Structure Point (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('POINT_STRUCTURE').classList.toggle('hide-display')">Structure Point (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="POINT_STRUCTURE"><code class="javascript">/**
  * Pour la structure point on considérera que c'est un vertex
  * auquel on a plaqué sa position z sur le plan 2D
@@ -47,7 +47,7 @@ class Point extends Vertex {
             <!-- EXERCICE 2 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">2</span> Écrire une fonction randomizedPoints qui génère un ensemble de n points du plan uniformément dans un disque centré en le centre de la zone d’affichage.</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="generatePoints()">Générer des points</button>
-            <p class="-margV pointer" onclick="document.getElementById('RANDOMIZE_POINTS').classList.toggle('hide-display')">Fonction randomizedPoints (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('RANDOMIZE_POINTS').classList.toggle('hide-display')">Fonction randomizedPoints (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="RANDOMIZE_POINTS"><code class="javascript">/**
 * Génère n points dans un cerle de rayon défini ayant pour centre un point
 */
@@ -64,7 +64,7 @@ function randomizePoints(n, center, rayon) {
 }</code></pre>
             <!-- EXERCICE 3 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">3</span> Écrire une fonction concave qui prend en entrée trois points (r, s, t) du plan et renvoie True si t est strictement à droite de (rs) orientée de r à s et False sinon.</p>
-            <p class="-margV pointer" onclick="document.getElementById('CONCAVE').classList.toggle('hide-display')">Fonction Concave (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('CONCAVE').classList.toggle('hide-display')">Fonction Concave (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="CONCAVE"><code class="javascript">function orientation(r, s, t) {
     let val = (s.y - r.y) * (t.x - s.x) - (s.x - r.x) * (t.y - s.y);
     return val == 0 ? 0 : val > 0 ? 1 : 2;
@@ -75,7 +75,7 @@ function concave (r, s, t){
 }</code></pre>
             <!-- EXERCICE 4 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">4</span> Implémentez l’algorithme de Graham.</p>
-            <p class="-margV pointer" onclick="document.getElementById('GRAHAM').classList.toggle('hide-display')">Fonction Graham (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('GRAHAM').classList.toggle('hide-display')">Fonction Graham (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="GRAHAM"><code class="javascript">function Graham(points) {
     //On récupère le point pivot
     let min = 0;
@@ -107,7 +107,7 @@ function concave (r, s, t){
 }</code></pre>
             <!-- EXERCICE 5 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">5</span> Générez un ensemble de points aléatoirement à l’aide de la fonction randomizedPoints, et calculez l’enveloppe convexe de ces points.</p>
-            <p class="-margV pointer" onclick="document.getElementById('GENERATION_GRAHAM').classList.toggle('hide-display')">Fonction de génération (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('GENERATION_GRAHAM').classList.toggle('hide-display')">Fonction de génération (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="GENERATION_GRAHAM"><code class="javascript">// Permet de générer des points aléatoirement et calculer l'enveloppe convexe
 // center représente le point au centre de la scène , min représente le minimum entre la hauteur et la largeur de la scène
 let points = randomizePoints(50, center, min / 2.5);
@@ -118,7 +118,7 @@ let g = Graham(points);</code></pre>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startGraham()">Visualiser Graham</button>
             <!-- EXERCICE 7 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">7</span> Implémentez une fonction de tri lexicographique d’un ensemble de n points.</p>
-            <p class="-margV pointer" onclick="document.getElementById('TRI_LEXICO').classList.toggle('hide-display')">Fonction Tri lexicographique (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('TRI_LEXICO').classList.toggle('hide-display')">Fonction Tri lexicographique (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="TRI_LEXICO"><code class="javascript">function lexicographiqueSort(points){
   return [...points].sort((a, b) => {
     if(a.x == b.x){
@@ -132,7 +132,7 @@ let g = Graham(points);</code></pre>
             <p>Lors du précédent TP nous avons développé une structure de triangle basé sur le Half Edge, nous l'utiliserons pour la suite.</p>
             <!-- EXERCICE 9 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">9</span> Les points étant supposé triés, une triangulation Ti ayant été déjà calculé, implémentez une fonction permettant de tester si une arête de Ti est visible d’un point pj , j > i.</p>
-            <p class="-margV pointer" onclick="document.getElementById('TEST_VISIBLE').classList.toggle('hide-display')">Voir la Fonction (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('TEST_VISIBLE').classList.toggle('hide-display')">Voir la Fonction (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="TEST_VISIBLE"><code class="javascript">//Permet de créer le vecteur allant de A à B
 function createVector(A, B){
     return new Vertex(B.x - A.x, B.y - A.y, B.z - A.z);
@@ -165,7 +165,7 @@ function pointVisible(pi, O, pk, pj){
 }</code></pre>
             <!-- EXERCICE 10 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">10</span> Implémentez l’algorithme incrémental de triangulation.</p>
-            <p class="-margV pointer" onclick="document.getElementById('TRIANGULATION').classList.toggle('hide-display')">Algorithme incrémental Triangulation (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('TRIANGULATION').classList.toggle('hide-display')">Algorithme incrémental Triangulation (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="TRIANGULATION"><code class="javascript">/**
  * Permet d'obtenir le HEdge n'ayant pas de face pointant à l'opposé de v
  * @param  {Mesh} m le maillage
@@ -295,7 +295,7 @@ function Triangulation(givenPoints){
             <!-- EXERCICE 11 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">11</span> Générez un ensemble de points aléatoirement à l’aide de la fonction randomizedPoints, triangulez ces points.</p>
             <button type="button" name="button" class="btn -roundest back-1 padding-small -align-sstart" onclick="startTriangulation()">Visualiser La Triangulation</button>
-            <p class="-margV pointer" onclick="document.getElementById('CODE_GENRERATE_TRIANGULATION').classList.toggle('hide-display')">Algorithme incrémental Triangulation (cliquez ici pour voir le code)</p>
+            <p class="-margV pointer" onclick="document.getElementById('CODE_GENRERATE_TRIANGULATION').classList.toggle('hide-display')">Algorithme incrémental Triangulation (<span class="color-1">cliquez ici pour voir le code</span>)</p>
 <pre class="prettyprint -flexCStart -align-ifill hide-display" id="CODE_GENRERATE_TRIANGULATION"><code class="javascript">//Génération de la triangulation
 // center représente le point au centre de la scène , min représente le minimum entre la hauteur et la largeur de la scène
 let points = randomizePoints(50, center, min / 2.5);

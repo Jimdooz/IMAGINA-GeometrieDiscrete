@@ -173,6 +173,7 @@ class Mesh {
 
   //Incident Iterator Vertex
   *incidentIteratorVertex(v){
+    let iMax = 0;
     let e = this.getVertex(v).edge;
     let head = this.getVertex(v).edge;
     do {
