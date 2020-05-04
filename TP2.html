@@ -76,7 +76,14 @@ function concave (r, s, t){
             <!-- EXERCICE 4 -->
             <p class="-bold -margV"><span class="badge -rounded back-1">4</span> Implémentez l’algorithme de Graham.</p>
             <p class="-margV pointer" onclick="document.getElementById('GRAHAM').classList.toggle('hide-display')">Fonction Graham (<span class="color-1">cliquez ici pour voir le code</span>)</p>
-<pre class="prettyprint -flexCStart -align-ifill hide-display" id="GRAHAM"><code class="javascript">function Graham(points) {
+<pre class="prettyprint -flexCStart -align-ifill hide-display" id="GRAHAM"><code class="javascript">
+function compare(p1, p2) {
+    let o = orientation(pivot, p1, p2);
+    if (o == 0) return (crossProduct(pivot, p2) >= crossProduct(pivot, p1))? -1 : 1;
+    return o == 2 ? -1: 1;
+}
+
+function Graham(points) {
     //On récupère le point pivot
     let min = 0;
     for (let i = 1; i < points.length; i++) {

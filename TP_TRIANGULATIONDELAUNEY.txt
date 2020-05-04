@@ -1,0 +1,2 @@
+TP triangulation de Delaunay et Diagramme de Voronoï
+https://jimdooz.github.io/IMAGINA-GeometrieDiscrete/TP3.html

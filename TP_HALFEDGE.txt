@@ -1,0 +1,2 @@
+Lien du TP Half Edge
+https://jimdooz.github.io/IMAGINA-GeometrieDiscrete/TP1.html

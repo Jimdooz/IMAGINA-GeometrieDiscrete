@@ -1,0 +1,2 @@
+TP enveloppe convexe et triangulation incrémentale
+https://jimdooz.github.io/IMAGINA-GeometrieDiscrete/TP2.html
